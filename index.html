@@ -428,6 +428,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--terracota);box-shadow
       <button class="nav-btn" data-tab="nuevo" onclick="App.go('nuevo')"><span class="nav-icon">📝</span> Nuevo Pedido</button>
       <button class="nav-btn" data-tab="pedidos" onclick="App.go('pedidos')"><span class="nav-icon">📋</span> Pedidos</button>
       <button class="nav-btn" data-tab="calendario" onclick="App.go('calendario')"><span class="nav-icon">📅</span> Calendario</button>
+      <button class="nav-btn" style="margin-top:8px;background:rgba(255,255,255,.1)" onclick="App.openSettings()"><span class="nav-icon">⚙️</span> Configuración</button>
     </nav>
     <div class="sidebar-footer">
       © 2026 Tejidos Toyo<br>Pedidos personalizados
@@ -744,6 +745,76 @@ const App = {
     t.innerHTML=(type==='success'?'✅ ':type==='error'?'❌ ':type==='warning'?'⚠️ ':'ℹ️ ')+msg;
     setTimeout(()=>t.classList.add('show'),10);
     setTimeout(()=>t.classList.remove('show'),3000);
+  },
+  openSettings(){
+    const total=Store.get().length;
+    const activos=Store.get().filter(x=>x.status==='active').length;
+    const html=`
+      <div class="modal-header">
+        <div class="modal-title">⚙️ Configuración del Sistema</div>
+        <button class="modal-close" onclick="Modal.close()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="card" style="background:var(--cream);margin-bottom:16px">
+          <div class="card-title">📊 Estado actual</div>
+          <div class="receipt-row"><span class="receipt-label">Total de pedidos guardados:</span><span class="receipt-value">${total}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Pedidos activos:</span><span class="receipt-value">${activos}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Modo de almacenamiento:</span><span class="receipt-value">${Store.lsOK()?'Permanente (localStorage)':'Temporal (memoria)'}</span></div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;border:2px solid var(--celeste-light)">
+          <div class="card-title">💾 Copias de seguridad</div>
+          <p style="font-size:13px;color:var(--brown-soft);margin-bottom:12px">Descarga todos tus pedidos antes de reiniciar, por si necesitas recuperarlos después.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-celeste" onclick="PedidoUI.exportJSON()">💾 Backup JSON (completo)</button>
+            <button class="btn btn-celeste" onclick="PedidoUI.exportCSV()">⬇️ Exportar CSV (Excel)</button>
+          </div>
+        </div>
+
+        <div class="card" style="border:2px solid var(--warning);background:#FEF5E7">
+          <div class="card-title" style="color:var(--warning)">⚠️ Zona peligrosa</div>
+          <p style="font-size:13px;color:var(--brown-soft);margin-bottom:12px">Estas acciones <b>borran datos</b> y no se pueden deshacer. Asegúrate de tener un backup si lo necesitas.</p>
+          
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-warning" onclick="App.resetData('examples')">🔄 Cargar ejemplos</button>
+            <small style="color:var(--brown-soft);font-size:12px;margin-top:-4px">Borra todo y vuelve a poner los 4 pedidos de ejemplo.</small>
+
+            <button class="btn btn-danger" onclick="App.resetData('empty')" style="margin-top:6px">🗑️ Borrar TODOS los pedidos</button>
+            <small style="color:var(--brown-soft);font-size:12px;margin-top:-4px">Borra absolutamente todo. Empiezas con la lista vacía.</small>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;border:2px solid var(--terracota-soft)">
+          <div class="card-title">📂 Restaurar backup</div>
+          <p style="font-size:13px;color:var(--brown-soft);margin-bottom:12px">Carga un archivo JSON que hayas descargado antes para restaurar tus pedidos.</p>
+          <label class="btn btn-primary" style="cursor:pointer">
+            📂 Seleccionar archivo JSON
+            <input type="file" accept=".json" style="display:none" onchange="PedidoUI.importJSON(this.files[0]);Modal.close()">
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button>
+      </div>`;
+    Modal.open(html);
+  },
+  resetData(mode){
+    const msg=mode==='empty'
+      ?'¿Seguro que quieres BORRAR TODOS los pedidos? Esta acción no se puede deshacer.'
+      :'¿Volver a cargar los 4 pedidos de ejemplo? Se borrarán los pedidos actuales.';
+    if(!confirm(msg))return;
+    if(mode==='empty'){
+      Store.save([]);
+      App.toast('Todos los pedidos borrados');
+    }else{
+      Store.save([]);
+      seedData(true);
+      App.toast('Pedidos de ejemplo cargados');
+    }
+    Modal.close();
+    Dashboard.render();
+    PedidoUI.render();
+    CalendarUI.render();
   }
 };
 
@@ -1382,8 +1453,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 /* =========================================================================
    SEED DATA · Datos de ejemplo
    ========================================================================= */
-function seedData(){
-  if(Store.get().length)return;
+function seedData(force){
+  if(!force&&Store.get().length)return;
   const today=Fmt.today();
   Store.save([
     {

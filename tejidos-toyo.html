@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tejidos y Variedades Toyo · Sistema de Pedidos y Compromisos</title>
+<style>
+/* ===================== VARIABLES Y RESET ===================== */
+:root{
+  --terracota:#C66B3D;
+  --terracota-dark:#A5522E;
+  --terracota-light:#E89A6F;
+  --terracota-soft:#F4D5C2;
+  --celeste:#5DADE2;
+  --celeste-dark:#3498DB;
+  --celeste-light:#AED6F1;
+  --celeste-soft:#D6EAF8;
+  --cream:#FDF6EC;
+  --cream-dark:#F5E8D4;
+  --brown:#3D2817;
+  --brown-soft:#6B4E33;
+  --white:#FFFFFF;
+  --success:#27AE60;
+  --warning:#E67E22;
+  --danger:#C0392B;
+  --shadow-sm:0 2px 6px rgba(61,40,23,.08);
+  --shadow-md:0 6px 18px rgba(61,40,23,.12);
+  --shadow-lg:0 12px 32px rgba(61,40,23,.18);
+  --radius:14px;
+  --radius-sm:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Segoe UI',Tahoma,sans-serif;
+  background:linear-gradient(135deg,var(--cream) 0%,var(--cream-dark) 100%);
+  color:var(--brown);
+  min-height:100vh;
+  line-height:1.5;
+}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:inherit;outline:none}
+ul{list-style:none}
+
+/* ===================== STORAGE WARNING BANNER ===================== */
+.storage-banner{
+  background:linear-gradient(90deg,#E67E22,#C0392B);
+  color:#fff;padding:12px 20px;
+  display:none;align-items:center;gap:12px;
+  font-size:13px;font-weight:500;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.storage-banner.show{display:flex}
+.storage-banner-icon{font-size:22px}
+.storage-banner-text{flex:1}
+.storage-banner-text b{font-weight:700}
+.storage-banner button{
+  background:rgba(255,255,255,.2);color:#fff;
+  padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;
+  border:1px solid rgba(255,255,255,.4);
+}
+.storage-banner button:hover{background:rgba(255,255,255,.3)}
+
+/* ===================== LAYOUT ===================== */
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:260px;
+  background:linear-gradient(180deg,var(--terracota) 0%,var(--terracota-dark) 100%);
+  color:#fff;
+  padding:24px 16px;
+  position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;
+  box-shadow:var(--shadow-md);
+  flex-shrink:0;
+}
+.brand{text-align:center;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.2)}
+.brand-icon{font-size:42px;margin-bottom:6px}
+.brand-name{font-size:18px;font-weight:700;line-height:1.2}
+.brand-tag{font-size:11px;opacity:.85;margin-top:4px;letter-spacing:1px;text-transform:uppercase}
+.nav{flex:1;display:flex;flex-direction:column;gap:6px}
+.nav-btn{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;
+  background:transparent;color:#fff;
+  border-radius:var(--radius-sm);
+  font-size:14px;font-weight:500;
+  text-align:left;
+  transition:all .2s ease;
+}
+.nav-btn:hover{background:rgba(255,255,255,.15)}
+.nav-btn.active{background:#fff;color:var(--terracota-dark);font-weight:700;box-shadow:var(--shadow-sm)}
+.nav-icon{font-size:18px;width:24px;text-align:center}
+.sidebar-footer{padding-top:16px;border-top:1px solid rgba(255,255,255,.2);font-size:11px;opacity:.85;text-align:center}
+
+.main{flex:1;padding:32px;max-width:1400px}
+.section{display:none;animation:fadeIn .3s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:26px;font-weight:700;color:var(--terracota-dark)}
+.page-subtitle{font-size:14px;color:var(--brown-soft);margin-top:4px}
+
+/* ===================== BOTONES ===================== */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 18px;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:600;
+  transition:all .2s ease;
+  white-space:nowrap;
+}
+.btn-primary{background:var(--terracota);color:#fff}
+.btn-primary:hover{background:var(--terracota-dark);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.btn-celeste{background:var(--celeste);color:#fff}
+.btn-celeste:hover{background:var(--celeste-dark);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{filter:brightness(.92);transform:translateY(-1px)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{filter:brightness(.92)}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-warning:hover{filter:brightness(.92)}
+.btn-ghost{background:transparent;color:var(--brown-soft);border:1.5px solid var(--cream-dark)}
+.btn-ghost:hover{background:var(--cream-dark);color:var(--brown)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-icon{padding:8px;width:34px;height:34px;justify-content:center}
+
+/* ===================== CARDS ===================== */
+.card{
+  background:#fff;border-radius:var(--radius);
+  padding:22px;box-shadow:var(--shadow-sm);
+  border:1px solid rgba(61,40,23,.04);
+}
+.card-title{font-size:16px;font-weight:700;color:var(--terracota-dark);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* ===================== DASHBOARD ===================== */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-bottom:24px}
+.stat-card{
+  background:#fff;border-radius:var(--radius);
+  padding:22px;box-shadow:var(--shadow-sm);
+  position:relative;overflow:hidden;
+  border-left:5px solid var(--terracota);
+}
+.stat-card.celeste{border-left-color:var(--celeste)}
+.stat-card.success{border-left-color:var(--success)}
+.stat-card.warning{border-left-color:var(--warning)}
+.stat-card.danger{border-left-color:var(--danger)}
+.stat-label{font-size:12px;color:var(--brown-soft);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.stat-value{font-size:30px;font-weight:700;color:var(--brown);margin:6px 0 4px}
+.stat-meta{font-size:13px;color:var(--brown-soft)}
+.stat-icon{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:38px;opacity:.18}
+
+.dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.dashboard-grid{grid-template-columns:1fr}}
+
+.alert-list{display:flex;flex-direction:column;gap:10px}
+.alert-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;border-radius:var(--radius-sm);
+  background:var(--cream);
+  border-left:4px solid var(--warning);
+}
+.alert-item.urgent{border-left-color:var(--danger);background:#FDEDEC}
+.alert-item.normal{border-left-color:var(--celeste);background:var(--celeste-soft)}
+.alert-icon{font-size:22px}
+.alert-info{flex:1}
+.alert-title{font-weight:600;font-size:14px}
+.alert-meta{font-size:12px;color:var(--brown-soft)}
+.alert-action{font-size:12px;padding:6px 10px}
+
+/* ===================== TABLAS ===================== */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);background:#fff;box-shadow:var(--shadow-sm)}
+table{width:100%;border-collapse:collapse}
+thead th{
+  background:var(--terracota);color:#fff;
+  padding:12px 14px;text-align:left;
+  font-size:12px;text-transform:uppercase;letter-spacing:.5px;
+  font-weight:600;
+}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--cream-dark);font-size:14px;vertical-align:top}
+tbody tr:hover{background:var(--cream)}
+tbody tr:last-child td{border-bottom:none}
+.tag{
+  display:inline-block;padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+}
+.tag-active{background:var(--celeste-soft);color:var(--celeste-dark)}
+.tag-picked{background:#D5F5E3;color:var(--success)}
+.tag-cancelled{background:#FADBD8;color:var(--danger)}
+.tag-expired{background:#FDEBD0;color:var(--warning)}
+
+/* ===================== FORMULARIOS ===================== */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+label{font-size:13px;font-weight:600;color:var(--brown-soft)}
+input,select,textarea{
+  padding:10px 12px;border:1.5px solid var(--cream-dark);
+  border-radius:var(--radius-sm);font-size:14px;
+  background:#fff;color:var(--brown);
+  transition:all .2s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--terracota);box-shadow:0 0 0 3px var(--terracota-soft)}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--cream-dark)}
+.form-section-title{
+  grid-column:1/-1;
+  font-size:14px;font-weight:700;color:var(--terracota-dark);
+  text-transform:uppercase;letter-spacing:.8px;
+  padding:8px 0 4px;border-bottom:2px solid var(--terracota-soft);
+  margin-top:8px;
+}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{
+  background:var(--cream);border:2px solid var(--cream-dark);
+  padding:8px 14px;border-radius:20px;font-size:13px;cursor:pointer;
+  transition:all .15s;font-weight:500;user-select:none;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.chip:hover{border-color:var(--terracota-light);transform:translateY(-1px)}
+.chip.selected{background:var(--terracota);color:#fff;border-color:var(--terracota-dark);box-shadow:0 3px 8px rgba(198,107,61,.3)}
+.chip.selected.celeste{background:var(--celeste);border-color:var(--celeste-dark);box-shadow:0 3px 8px rgba(93,173,226,.3)}
+.chip.selected::before{content:"✓ ";font-weight:700}
+.allergy-section{
+  border:2px solid var(--cream-dark);border-radius:var(--radius-sm);
+  padding:14px;background:#fff;transition:all .2s;
+}
+.allergy-section.error{
+  border-color:var(--danger);background:#FDEDEC;
+  animation:shake .4s;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  75%{transform:translateX(6px)}
+}
+.allergy-error-msg{
+  color:var(--danger);font-size:13px;font-weight:600;
+  margin-top:8px;display:none;align-items:center;gap:6px;
+}
+.allergy-section.error .allergy-error-msg{display:flex}
+.color-dot{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:4px;border:1px solid rgba(0,0,0,.15)}
+
+/* ===================== PEDIDOS GRID ===================== */
+.pedido-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.pedido-card{
+  background:#fff;border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow-sm);transition:all .2s;
+  border:1px solid rgba(61,40,23,.04);
+  display:flex;flex-direction:column;
+}
+.pedido-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.pedido-card-header{
+  padding:14px;background:linear-gradient(135deg,var(--terracota-soft),var(--celeste-soft));
+  display:flex;justify-content:space-between;align-items:center;
+}
+.pedido-card-icon{font-size:32px}
+.pedido-tag{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.pedido-card-body{padding:14px;flex:1}
+.pedido-producto{font-weight:700;font-size:15px;color:var(--brown);margin-bottom:4px}
+.pedido-cliente{font-size:13px;color:var(--brown-soft);margin-bottom:8px}
+.pedido-detail{font-size:12px;color:var(--brown-soft);margin:2px 0;display:flex;gap:6px}
+.pedido-detail b{color:var(--brown);font-weight:600;min-width:70px}
+.pedido-card-footer{padding:12px 14px;border-top:1px solid var(--cream-dark);display:flex;justify-content:space-between;align-items:center;background:var(--cream)}
+.pedido-precio{font-size:18px;font-weight:700;color:var(--terracota-dark)}
+.pedido-saldo{font-size:11px;color:var(--brown-soft);text-align:right}
+.pedido-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+
+/* ===================== MODAL ===================== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(61,40,23,.55);
+  display:none;align-items:center;justify-content:center;
+  z-index:1000;padding:20px;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:#fff;border-radius:var(--radius);
+  width:100%;max-width:600px;max-height:92vh;overflow-y:auto;
+  box-shadow:var(--shadow-lg);animation:modalIn .3s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+.modal-header{
+  background:linear-gradient(135deg,var(--terracota),var(--terracota-dark));
+  color:#fff;padding:18px 22px;border-radius:var(--radius) var(--radius) 0 0;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-title{font-size:18px;font-weight:700}
+.modal-close{background:transparent;color:#fff;font-size:24px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:rgba(255,255,255,.2)}
+.modal-body{padding:22px}
+.modal-footer{padding:16px 22px;border-top:1px solid var(--cream-dark);display:flex;justify-content:flex-end;gap:10px}
+
+/* ===================== COMPROBANTE ===================== */
+.receipt{
+  background:#fff;padding:30px;border:1px dashed var(--terracota);
+  border-radius:var(--radius);font-family:'Courier New',monospace;
+  max-width:480px;margin:0 auto;
+}
+.receipt-header{text-align:center;border-bottom:2px dashed var(--terracota);padding-bottom:16px;margin-bottom:16px}
+.receipt-logo{font-size:42px}
+.receipt-business{font-size:18px;font-weight:700;color:var(--terracota-dark);margin:4px 0}
+.receipt-sub{font-size:11px;color:var(--brown-soft);text-transform:uppercase;letter-spacing:1px}
+.receipt-title{background:var(--terracota);color:#fff;text-align:center;padding:8px;font-weight:700;letter-spacing:2px;font-size:13px;margin:14px 0;border-radius:4px}
+.receipt-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dotted var(--cream-dark);font-size:13px;gap:8px}
+.receipt-row.total{font-weight:700;font-size:16px;border-bottom:2px solid var(--terracota);padding-top:12px;margin-top:6px}
+.receipt-row.section{background:var(--cream);padding:8px 10px;border-radius:4px;border-bottom:none;margin:8px 0;font-weight:700;color:var(--terracota-dark)}
+.receipt-label{color:var(--brown-soft);flex-shrink:0}
+.receipt-value{font-weight:700;color:var(--brown);text-align:right}
+.receipt-block{
+  background:var(--celeste-soft);padding:10px;border-radius:6px;
+  margin:8px 0;font-size:12px;
+}
+.receipt-block-label{font-weight:700;color:var(--celeste-dark);font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.receipt-block-content{color:var(--brown);font-weight:600}
+.receipt-note{margin-top:18px;padding:12px;background:#FDEBD0;border-radius:6px;font-size:12px;text-align:center;color:var(--warning);font-weight:600;border:1px dashed var(--warning)}
+.receipt-allergy{margin-top:8px;padding:10px;background:#FADBD8;border-radius:6px;font-size:12px;text-align:center;color:var(--danger);font-weight:700;border:1px dashed var(--danger)}
+.receipt-footer{text-align:center;margin-top:18px;font-size:11px;color:var(--brown-soft);border-top:2px dashed var(--terracota);padding-top:12px}
+
+/* ===================== CALENDARIO ===================== */
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.cal-nav{display:flex;gap:8px;align-items:center}
+.cal-month{font-size:20px;font-weight:700;color:var(--terracota-dark);min-width:220px;text-align:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-day-name{
+  background:var(--celeste-dark);color:#fff;
+  padding:10px;text-align:center;font-weight:700;font-size:12px;
+  border-radius:var(--radius-sm);text-transform:uppercase;
+}
+.cal-day{
+  background:#fff;min-height:110px;border-radius:var(--radius-sm);
+  padding:6px;box-shadow:var(--shadow-sm);
+  display:flex;flex-direction:column;gap:3px;
+  border:1px solid rgba(61,40,23,.04);
+}
+.cal-day.empty{background:transparent;box-shadow:none;border:none}
+.cal-day.today{border:2px solid var(--terracota);background:var(--cream)}
+.cal-day-num{font-weight:700;font-size:13px;color:var(--brown-soft)}
+.cal-day.today .cal-day-num{color:var(--terracota-dark)}
+.cal-event{
+  font-size:10px;padding:3px 6px;border-radius:4px;
+  cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-weight:600;
+}
+.cal-event.urgent{background:var(--danger);color:#fff}
+.cal-event.soon{background:var(--warning);color:#fff}
+.cal-event.normal{background:var(--celeste);color:#fff}
+.cal-event.done{background:var(--success);color:#fff;text-decoration:line-through}
+.cal-legend{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap;font-size:13px}
+.cal-legend-item{display:flex;align-items:center;gap:6px}
+.cal-legend-dot{width:14px;height:14px;border-radius:4px}
+
+/* ===================== TOAST ===================== */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--brown);color:#fff;
+  padding:14px 22px;border-radius:var(--radius-sm);
+  box-shadow:var(--shadow-lg);font-size:14px;font-weight:500;
+  z-index:2000;transform:translateX(400px);
+  transition:transform .3s ease;display:flex;align-items:center;gap:10px;
+}
+.toast.show{transform:translateX(0)}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+.toast.warning{background:var(--warning)}
+
+/* ===================== SEARCH/FILTER ===================== */
+.toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:200px;position:relative}
+.search-box input{width:100%;padding-left:36px}
+.search-box::before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px}
+.filter-select{min-width:150px}
+
+/* ===================== EMPTY STATE ===================== */
+.empty-state{text-align:center;padding:50px 20px;color:var(--brown-soft)}
+.empty-state-icon{font-size:64px;margin-bottom:14px;opacity:.5}
+.empty-state-title{font-size:18px;font-weight:600;margin-bottom:6px}
+.empty-state-text{font-size:14px}
+
+/* ===================== RESPONSIVE ===================== */
+@media(max-width:768px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap;padding:14px}
+  .brand{flex:1;min-width:200px;border-bottom:none;padding-bottom:0;margin-bottom:0}
+  .brand-icon{font-size:32px}
+  .brand-name{font-size:14px}
+  .brand-tag{display:none}
+  .nav{flex-direction:row;flex-wrap:wrap;width:100%}
+  .nav-btn{flex:1;min-width:120px;padding:8px;font-size:12px}
+  .sidebar-footer{display:none}
+  .main{padding:18px}
+  .form-grid{grid-template-columns:1fr}
+  .page-title{font-size:20px}
+  .cal-day{min-height:70px}
+  .cal-event{font-size:9px}
+}
+@media print{
+  .sidebar,.nav,.btn{display:none!important}
+  .main{padding:0}
+  .modal-overlay{position:static;background:transparent;padding:0;backdrop-filter:none}
+  .modal{max-width:none;box-shadow:none;border-radius:0}
+  .modal-header,.modal-footer{display:none}
+  .receipt{border:1px solid #000}
+}
+</style>
+</head>
+<body>
+<!-- Banner de advertencia cuando localStorage no está disponible -->
+<div class="storage-banner" id="storageBanner">
+  <span class="storage-banner-icon">⚠️</span>
+  <span class="storage-banner-text">
+    <b>MODO TEMPORAL:</b> Tu navegador bloquea el guardado permanente (sandbox). Los pedidos se guardan solo en memoria y se perderán al cerrar/actualizar la página.
+    <b>Exporta a CSV antes de cerrar.</b>
+  </span>
+  <button onclick="PedidoUI.exportCSV()">⬇️ Exportar CSV</button>
+  <button onclick="PedidoUI.exportJSON()">⬇️ Backup JSON</button>
+</div>
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🧶</div>
+      <div class="brand-name">Tejidos y Variedades<br>Toyo</div>
+      <div class="brand-tag">Pedidos · Compromisos</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-tab="dashboard" onclick="App.go('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
+      <button class="nav-btn" data-tab="nuevo" onclick="App.go('nuevo')"><span class="nav-icon">📝</span> Nuevo Pedido</button>
+      <button class="nav-btn" data-tab="pedidos" onclick="App.go('pedidos')"><span class="nav-icon">📋</span> Pedidos</button>
+      <button class="nav-btn" data-tab="calendario" onclick="App.go('calendario')"><span class="nav-icon">📅</span> Calendario</button>
+    </nav>
+    <div class="sidebar-footer">
+      © 2026 Tejidos Toyo<br>Pedidos personalizados
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="section active" id="tab-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard · Resumen General</div>
+          <div class="page-subtitle">Estado actual de pedidos y compromisos de pago</div>
+        </div>
+        <button class="btn btn-primary" onclick="App.go('nuevo')">➕ Nuevo Pedido</button>
+      </div>
+
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-title">⚠️ Entregas Urgentes (próximos 3 días)</div>
+          <div class="alert-list" id="alertList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">📈 Resumen Financiero</div>
+          <div id="financeSummary"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ NUEVO PEDIDO ============ -->
+    <section class="section" id="tab-nuevo">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Registrar Nuevo Pedido</div>
+          <div class="page-subtitle">Captura todos los detalles del pedido personalizado y el compromiso de pago</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <form id="formPedido" onsubmit="event.preventDefault(); PedidoUI.save(event)">
+          <div class="form-grid">
+
+            <div class="form-section-title">👤 Datos del Cliente</div>
+            <div class="form-group">
+              <label>Nombre del Cliente *</label>
+              <input type="text" id="clienteNombre" required placeholder="Ej: María González">
+            </div>
+            <div class="form-group">
+              <label>Teléfono / Contacto *</label>
+              <input type="text" id="clienteTel" required placeholder="Ej: 300 123 4567">
+            </div>
+
+            <div class="form-section-title">🧶 Detalles del Pedido</div>
+            <div class="form-group full">
+              <label>Descripción del Producto *</label>
+              <input type="text" id="productoTipo" required list="productoList" placeholder="Escribe libremente: Ej: Suéter tejido en punto arroz para damas con cuello V" autocomplete="off">
+              <datalist id="productoList">
+                <option value="Suéter de lana">
+                <option value="Suéter con cuello alto">
+                <option value="Suéter con cuello V">
+                <option value="Suéter oversize">
+                <option value="Cardigan tejido">
+                <option value="Bufanda larga">
+                <option value="Bufanda corta">
+                <option value="Bufanda infinito (cuello)">
+                <option value="Gorro con orejeras">
+                <option value="Gorro con pompón">
+                <option value="Gorro simple">
+                <option value="Chaleco tejido">
+                <option value="Poncho">
+                <option value="Medias / calcetines">
+                <option value="Manta tejida">
+                <option value="Vestido tejido">
+                <option value="Guantes tejidos">
+                <option value="Manoplas">
+                <option value="Chaqueta tejida">
+                <option value="Top tejido">
+                <option value="Falda tejida">
+                <option value="Bikini / traje de baño tejido">
+                <option value="Tapabocas tejido">
+                <option value="Cojín tejido">
+                <option value="Cobija para bebé">
+                <option value="Conjunto bebé (suéter + gorro + botitas)">
+                <option value="Botitas tejidas">
+                <option value="Manilla / pulsera tejida">
+                <option value="Bolso tejido">
+                <option value="Individual / posavasos tejido">
+              </datalist>
+              <small style="color:var(--brown-soft);font-size:12px">💡 Escribe libremente el nombre del producto. Te aparecerán sugerencias pero puedes escribir cualquier cosa (con variantes, características, etc.)</small>
+            </div>
+            <div class="form-group">
+              <label>Material / Fibra *</label>
+              <input type="text" id="material" required list="materialList" placeholder="Ej: Lana merino" autocomplete="off">
+              <datalist id="materialList">
+                <option value="Lana merino">
+                <option value="Lana acrílica">
+                <option value="Algodón">
+                <option value="Lana de oveja">
+                <option value="Lana baby alpaca">
+                <option value="Hilo crochet">
+                <option value="Mezcla lana/acrílico">
+                <option value="Lana virgen">
+                <option value="Hilo de algodón perlé">
+                <option value="Cinta textil">
+              </datalist>
+            </div>
+            <div class="form-group">
+              <label>Técnica *</label>
+              <input type="text" id="tecnica" list="tecnicaList" placeholder="Ej: Crochet, dos agujas" autocomplete="off">
+              <datalist id="tecnicaList">
+                <option value="Crochet">
+                <option value="Dos agujas (tricot)">
+                <option value="Telar">
+                <option value="Tejido plano">
+                <option value="Tejido circular">
+                <option value="Punto arroz">
+                <option value="Punto musgo">
+                <option value="Punto jersey">
+                <option value="Punto bobo">
+              </datalist>
+            </div>
+
+            <div class="form-group full">
+              <label>Color(es) *</label>
+              <input type="text" id="coloresText" required placeholder="Ej: Azul marino con detalles en crema">
+              <div class="chip-row" id="colorChips"></div>
+              <small style="color:var(--brown-soft);font-size:12px">Escribe el color o selecciónalo de los sugeridos</small>
+            </div>
+
+            <div class="form-group">
+              <label>Talla / Medidas *</label>
+              <input type="text" id="talla" required list="tallaList" placeholder="Ej: M adulto, o 50cm de ancho x 70cm de largo" autocomplete="off">
+              <datalist id="tallaList">
+                <option value="Bebé 0-6m">
+                <option value="Bebé 6-12m">
+                <option value="Niño 2-4">
+                <option value="Niño 6-8">
+                <option value="Niño 10-12">
+                <option value="XS (adulto)">
+                <option value="S (adulto)">
+                <option value="M (adulto)">
+                <option value="L (adulto)">
+                <option value="XL (adulto)">
+                <option value="XXL (adulto)">
+                <option value="Única">
+              </datalist>
+            </div>
+            <div class="form-group">
+              <label>Cantidad *</label>
+              <input type="number" id="cantidad" required min="1" value="1">
+            </div>
+
+            <div class="form-group full">
+              <label>⚠️ Alergias o Sensibilidades (marcar las que apliquen) *</label>
+              <div class="allergy-section" id="allergySection">
+                <div class="chip-row" id="allergyChips">
+                  <span class="chip celeste" data-allergy="Lana (picazón)" onclick="PedidoUI.toggleAllergy('Lana (picazón)')">Lana (picazón)</span>
+                  <span class="chip celeste" data-allergy="Acrílico" onclick="PedidoUI.toggleAllergy('Acrílico')">Acrílico</span>
+                  <span class="chip celeste" data-allergy="Tintes químicos" onclick="PedidoUI.toggleAllergy('Tintes químicos')">Tintes químicos</span>
+                  <span class="chip celeste" data-allergy="Látex (elásticos)" onclick="PedidoUI.toggleAllergy('Látex (elásticos)')">Látex (elásticos)</span>
+                  <span class="chip celeste" data-allergy="Piel sensible" onclick="PedidoUI.toggleAllergy('Piel sensible')">Piel sensible</span>
+                  <span class="chip celeste" data-allergy="Ninguna" onclick="PedidoUI.toggleAllergy('Ninguna')">Ninguna</span>
+                </div>
+                <div class="allergy-error-msg" id="allergyErrorMsg">⚠️ Debes seleccionar al menos una opción de alergias (marca "Ninguna" si no aplica)</div>
+              </div>
+              <small style="color:var(--brown-soft);font-size:12px">👆 Haz clic en una o más opciones. Quedarán marcadas con ✓</small>
+            </div>
+
+            <div class="form-group full">
+              <label>Características / Diseño / Detalles *</label>
+              <textarea id="caracteristicas" rows="4" required placeholder="Describe a detalle el pedido: puntada, bordados, adornos, mangas, cuello, largos, medidas específicas, accesorios incluidos, etc.&#10;Ej: Punto arroz, cuello alto de 8cm, mangas largas con puño elastizado, bordado floral en el pecho en color crema, largo hasta la cadera..."></textarea>
+            </div>
+
+            <div class="form-section-title">💰 Acuerdo de Pago y Compromiso</div>
+            <div class="form-group">
+              <label>Precio Acordado (COP) *</label>
+              <input type="number" id="precioAcordado" required min="0" step="100" placeholder="0" oninput="PedidoUI.calc()">
+            </div>
+            <div class="form-group">
+              <label>Abono Inicial (Garantía) *</label>
+              <input type="number" id="abonoInicial" required min="0" step="100" placeholder="0" oninput="PedidoUI.calc()">
+              <small style="color:var(--brown-soft);font-size:12px">Mínimo recomendado: 30% del precio</small>
+            </div>
+            <div class="form-group">
+              <label>Saldo Pendiente</label>
+              <input type="text" id="saldoPendiente" readonly style="background:var(--cream);font-weight:700;color:var(--terracota-dark)">
+            </div>
+            <div class="form-group">
+              <label>Fecha del Compromiso *</label>
+              <input type="date" id="fechaCompromiso" required>
+            </div>
+
+            <div class="form-group">
+              <label>Fecha Límite para Confirmar el Pedido *</label>
+              <input type="date" id="fechaLimitePedido" required>
+              <small style="color:var(--brown-soft);font-size:12px">Último día para hacer cambios antes de tejer</small>
+            </div>
+            <div class="form-group">
+              <label>Fecha de Entrega / Retiro y Pago *</label>
+              <input type="date" id="fechaEntrega" required style="font-weight:700;color:var(--terracota-dark)">
+              <small style="color:var(--brown-soft);font-size:12px">Día exacto en que el cliente debe recoger y cancelar el saldo</small>
+            </div>
+
+            <div class="form-group full">
+              <label>Notas / Observaciones</label>
+              <textarea id="notas" rows="2" placeholder="Detalles adicionales, condiciones especiales, referencias, etc."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" onclick="PedidoUI.reset()">Limpiar</button>
+            <button type="button" class="btn btn-ghost" onclick="App.go('pedidos')">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="PedidoUI.save()">💾 Guardar y Generar Comprobante</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ PEDIDOS ============ -->
+    <section class="section" id="tab-pedidos">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Pedidos Registrados</div>
+          <div class="page-subtitle">Administra todos los pedidos personalizados y sus compromisos</div>
+        </div>
+        <button class="btn btn-primary" onclick="App.go('nuevo')">➕ Nuevo Pedido</button>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <input type="text" placeholder="Buscar por cliente, producto o color..." oninput="PedidoUI.render()" id="pedidoSearch">
+        </div>
+        <select class="filter-select" id="pedidoStatusFilter" onchange="PedidoUI.render()">
+          <option value="">Todos los estados</option>
+          <option value="active">En proceso</option>
+          <option value="picked_up">Entregados</option>
+          <option value="cancelled">Cancelados</option>
+          <option value="expired">Vencidos</option>
+        </select>
+        <select class="filter-select" id="pedidoTipoFilter" onchange="PedidoUI.render()">
+          <option value="">Todos los tipos</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="PedidoUI.exportCSV()">⬇️ Exportar CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="PedidoUI.exportJSON()">💾 Backup JSON</button>
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+          📂 Importar JSON
+          <input type="file" accept=".json" style="display:none" onchange="PedidoUI.importJSON(this.files[0])">
+        </label>
+      </div>
+
+      <div id="pedidoContainer"></div>
+    </section>
+
+    <!-- ============ CALENDARIO ============ -->
+    <section class="section" id="tab-calendario">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Calendario de Control</div>
+          <div class="page-subtitle">Vista mensual de fechas de entrega y retiro</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cal-header">
+          <button class="btn btn-ghost btn-icon" onclick="CalendarUI.prev()">◀</button>
+          <div class="cal-month" id="calMonthLabel"></div>
+          <button class="btn btn-ghost btn-icon" onclick="CalendarUI.next()">▶</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--danger)"></span> Vence hoy / vencido</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--warning)"></span> Próximo (1-3 días)</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--celeste)"></span> Programado</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--success)"></span> Entregado</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== MODAL GENÉRICO ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   APP PRINCIPAL · Tejidos y Variedades Toyo · Pedidos Personalizados
+   ========================================================================= */
+const App = {
+  go(tab){
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    const btn=document.querySelector(`.nav-btn[data-tab="${tab}"]`);
+    if(btn)btn.classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    const sec=document.getElementById(`tab-${tab}`);
+    if(sec)sec.classList.add('active');
+    if(tab==='dashboard')Dashboard.render();
+    if(tab==='nuevo')PedidoUI.initForm();
+    if(tab==='pedidos')PedidoUI.render();
+    if(tab==='calendario')CalendarUI.render();
+  },
+  toast(msg,type='success'){
+    const t=document.getElementById('toast');
+    t.className='toast '+type;
+    t.innerHTML=(type==='success'?'✅ ':type==='error'?'❌ ':type==='warning'?'⚠️ ':'ℹ️ ')+msg;
+    setTimeout(()=>t.classList.add('show'),10);
+    setTimeout(()=>t.classList.remove('show'),3000);
+  }
+};
+
+/* =========================================================================
+   STORAGE
+   ========================================================================= */
+/* =========================================================================
+   STORAGE · Con respaldo en memoria si localStorage no está disponible
+   ========================================================================= */
+const Store = {
+  KEY:'toyo_pedidos_v2',
+  _mem:null,           // Respaldo en memoria
+  _lsAvailable:null,   // Cache de disponibilidad de localStorage
+
+  lsOK(){
+    if(this._lsAvailable!==null)return this._lsAvailable;
+    try{
+      const t='__toyo_test__';
+      window.localStorage.setItem(t,'1');
+      window.localStorage.removeItem(t);
+      this._lsAvailable=true;
+    }catch(e){
+      this._lsAvailable=false;
+      console.warn('⚠️ localStorage no disponible. Usando memoria temporal. Los datos se perderán al recargar la página.');
+    }
+    return this._lsAvailable;
+  },
+
+  get(){
+    if(this.lsOK()){
+      try{return JSON.parse(window.localStorage.getItem(this.KEY))||[]}
+      catch(e){return[]}
+    }
+    // Respaldo en memoria
+    if(!this._mem)this._mem=[];
+    return this._mem;
+  },
+
+  save(arr){
+    if(this.lsOK()){
+      try{window.localStorage.setItem(this.KEY,JSON.stringify(arr));return}catch(e){}
+    }
+    this._mem=arr;
+  },
+
+  uid(){return 'P'+Date.now().toString(36)+Math.random().toString(36).slice(2,6).toUpperCase()}
+};
+
+/* =========================================================================
+   HELPERS
+   ========================================================================= */
+const Fmt = {
+  money(n){
+    n=Number(n)||0;
+    return '$'+n.toLocaleString('es-CO',{maximumFractionDigits:0});
+  },
+  date(iso){
+    if(!iso)return '—';
+    const d=new Date(iso+'T00:00:00');
+    return d.toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'});
+  },
+  daysBetween(a,b){
+    const d1=new Date(a+'T00:00:00'),d2=new Date(b+'T00:00:00');
+    return Math.round((d2-d1)/86400000);
+  },
+  today(){return new Date().toISOString().slice(0,10)},
+  addDays(iso,days){
+    const dt=new Date(iso+'T00:00:00');
+    dt.setDate(dt.getDate()+days);
+    return dt.toISOString().slice(0,10);
+  }
+};
+
+const EMOJIS={
+  'Suéter':'🧥','Bufanda':'🧣','Gorro':'🎩','Chaleco':'🦺','Poncho':'🧶',
+  'Medias':'🧦','Manta':'🛏️','Vestido':'👗','Guantes':'🧤','Otro':'📦'
+};
+
+/* =========================================================================
+   DASHBOARD
+   ========================================================================= */
+const Dashboard = {
+  render(){
+    const r=Store.get();
+    const today=Fmt.today();
+    const active=r.filter(x=>x.status==='active');
+    const totalPend=active.reduce((s,x)=>s+(x.price-x.deposit),0);
+    const totalAbon=active.reduce((s,x)=>s+Number(x.deposit||0),0);
+    const urgent=active.filter(x=>{const d=Fmt.daysBetween(today,x.fechaEntrega);return d>=0&&d<=3});
+    const vencidos=active.filter(x=>Fmt.daysBetween(today,x.fechaEntrega)<0);
+    const entregados=r.filter(x=>x.status==='picked_up').length;
+
+    const stats=[
+      {label:'Pedidos en Proceso',value:active.length,meta:'En tejido / pendientes de entrega',icon:'🧵',cls:''},
+      {label:'Saldo Pendiente Total',value:Fmt.money(totalPend),meta:'Por cobrar al entregar',icon:'💰',cls:'celeste'},
+      {label:'Entregas Urgentes (≤3 días)',value:urgent.length,meta:'Atender esta semana',icon:'⏰',cls:'warning'},
+      {label:'Pedidos Vencidos',value:vencidos.length,meta:'Sin recoger a tiempo',icon:'🚨',cls:'danger'},
+      {label:'Total Abonado (Garantías)',value:Fmt.money(totalAbon),meta:'Dinero recibido como garantía',icon:'🏦',cls:'success'},
+      {label:'Pedidos Entregados',value:entregados,meta:'Compromisos finalizados',icon:'✅',cls:'success'}
+    ];
+    document.getElementById('statsGrid').innerHTML=stats.map(s=>`
+      <div class="stat-card ${s.cls}">
+        <div class="stat-label">${s.label}</div>
+        <div class="stat-value">${s.value}</div>
+        <div class="stat-meta">${s.meta}</div>
+        <div class="stat-icon">${s.icon}</div>
+      </div>`).join('');
+
+    const allUrgent=[...vencidos.map(x=>({...x,_vencido:true})),...urgent];
+    const alertEl=document.getElementById('alertList');
+    if(!allUrgent.length){
+      alertEl.innerHTML='<div class="empty-state"><div class="empty-state-icon">🎉</div><div class="empty-state-title">¡Sin urgencias!</div><div class="empty-state-text">No hay entregas próximas ni vencidas.</div></div>';
+    }else{
+      alertEl.innerHTML=allUrgent.sort((a,b)=>Fmt.daysBetween(today,a.fechaEntrega)-Fmt.daysBetween(today,b.fechaEntrega)).map(x=>{
+        const days=Fmt.daysBetween(today,x.fechaEntrega);
+        const cls=x._vencido||days<0?'urgent':days===0?'urgent':'normal';
+        const txt=x._vencido||days<0?`Vencido hace ${Math.abs(days)} día(s)`:days===0?'Vence HOY':`Faltan ${days} día(s)`;
+        return `<div class="alert-item ${cls}">
+          <div class="alert-icon">${x._vencido||days<0?'🚨':days===0?'⏰':'📅'}</div>
+          <div class="alert-info">
+            <div class="alert-title">${x.cliente} · ${x.productoTipo}</div>
+            <div class="alert-meta">${txt} · Entrega: ${Fmt.date(x.fechaEntrega)} · Saldo: ${Fmt.money(x.price-x.deposit)}</div>
+          </div>
+          <button class="btn btn-celeste alert-action" onclick="PedidoUI.showReceipt('${x.id}')">Ver</button>
+        </div>`;
+      }).join('');
+    }
+
+    const totalVentas=r.filter(x=>x.status==='picked_up').reduce((s,x)=>s+Number(x.price),0);
+    const totalGarant=active.reduce((s,x)=>s+Number(x.deposit),0);
+    document.getElementById('financeSummary').innerHTML=`
+      <div class="receipt-row"><span class="receipt-label">Total pedidos registrados</span><span class="receipt-value">${r.length}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Ingreso por garantías (activos)</span><span class="receipt-value">${Fmt.money(totalGarant)}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Saldo por cobrar (activos)</span><span class="receipt-value">${Fmt.money(totalPend)}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Ventas concretadas (entregados)</span><span class="receipt-value">${Fmt.money(totalVentas)}</span></div>
+      <div class="receipt-row total"><span>Capital total gestionado</span><span>${Fmt.money(totalGarant+totalPend+totalVentas)}</span></div>
+      <p style="margin-top:14px;font-size:12px;color:var(--brown-soft);text-align:center">💡 Recuerda: el abono inicial es <b>no reembolsable</b> si el cliente no retira en la fecha límite.</p>`;
+  }
+};
+
+/* =========================================================================
+   PEDIDOS UI
+   ========================================================================= */
+const PedidoUI = {
+  editingId:null,
+  selectedAllergies:[],
+
+  initForm(editId){
+    this.editingId=editId||null;
+    this.selectedAllergies=[];
+    const form=document.getElementById('formPedido');
+    form.reset();
+    document.getElementById('cantidad').value=1;
+    const today=Fmt.today();
+    document.getElementById('fechaCompromiso').value=today;
+    document.getElementById('fechaLimitePedido').value=Fmt.addDays(today,7);
+    document.getElementById('fechaEntrega').value=Fmt.addDays(today,21);
+
+    // Color chips
+    this.renderColorChips();
+    // Allergy chips
+    this.renderAllergyChips();
+    // Reset saldo
+    document.getElementById('saldoPendiente').value='';
+
+    if(editId){
+      const r=Store.get().find(x=>x.id===editId);
+      if(r){
+        document.getElementById('clienteNombre').value=r.cliente;
+        document.getElementById('clienteTel').value=r.tel;
+        document.getElementById('productoTipo').value=r.productoTipo||'';
+        document.getElementById('material').value=r.material||'';
+        document.getElementById('tecnica').value=r.tecnica||'';
+        document.getElementById('coloresText').value=r.colores||'';
+        document.getElementById('talla').value=r.talla||'';
+        document.getElementById('cantidad').value=r.cantidad;
+        document.getElementById('caracteristicas').value=r.caracteristicas;
+        document.getElementById('precioAcordado').value=r.price;
+        document.getElementById('abonoInicial').value=r.deposit;
+        document.getElementById('fechaCompromiso').value=r.fechaCompromiso;
+        document.getElementById('fechaLimitePedido').value=r.fechaLimitePedido;
+        document.getElementById('fechaEntrega').value=r.fechaEntrega;
+        document.getElementById('notas').value=r.notas||'';
+        this.selectedAllergies=r.alergias||[];
+        this.renderAllergyChips();
+        this.calc();
+      }
+    }
+  },
+
+  renderColorChips(){
+    const colors=[
+      {n:'Azul marino',c:'#1B2A5B'},{n:'Azul cielo',c:'#AED6F1'},{n:'Celeste',c:'#5DADE2'},
+      {n:'Rojo',c:'#C0392B'},{n:'Borgoña',c:'#7B241C'},{n:'Rosa',c:'#F5B7B1'},
+      {n:'Verde oscuro',c:'#1E8449'},{n:'Verde menta',c:'#A3E4D7'},{n:'Mostaza',c:'#D4AC0D'},
+      {n:'Amarillo',c:'#F4D03F'},{n:'Naranja',c:'#E67E22'},{n:'Terracota',c:'#C66B3D'},
+      {n:'Morado',c:'#7D3C98'},{n:'Vino tinto',c:'#641E16'},{n:'Gris',c:'#85929E'},
+      {n:'Negro',c:'#17202A'},{n:'Blanco',c:'#FFFFFF'},{n:'Crema',c:'#FDF6EC'},{n:'Café',c:'#6B4E33'}
+    ];
+    document.getElementById('colorChips').innerHTML=colors.map(c=>`
+      <span class="chip" onclick="PedidoUI.addColor('${c.n.replace(/'/g,"\\'")}')" title="${c.n}">
+        <span class="color-dot" style="background:${c.c}"></span>${c.n}
+      </span>`).join('');
+  },
+
+  addColor(name){
+    const inp=document.getElementById('coloresText');
+    const v=inp.value.trim();
+    inp.value=v?(v+', '+name):name;
+    App.toast('Color agregado: '+name);
+  },
+
+  renderAllergyChips(){
+    document.querySelectorAll('#allergyChips .chip').forEach(chip=>{
+      const a=chip.dataset.allergy;
+      chip.classList.toggle('selected',this.selectedAllergies.includes(a));
+    });
+  },
+
+  toggleAllergy(name){
+    const i=this.selectedAllergies.indexOf(name);
+    if(i>=0)this.selectedAllergies.splice(i,1);
+    else this.selectedAllergies.push(name);
+    if(name==='Ninguna'&&this.selectedAllergies.includes('Ninguna')){
+      this.selectedAllergies=['Ninguna'];
+    }else if(name!=='Ninguna'){
+      this.selectedAllergies=this.selectedAllergies.filter(x=>x!=='Ninguna');
+    }
+    this.renderAllergyChips();
+  },
+
+  onTipoChange(){/* placeholder for future logic */},
+
+  calc(){
+    const price=Number(document.getElementById('precioAcordado').value)||0;
+    const abono=Number(document.getElementById('abonoInicial').value)||0;
+    const saldo=Math.max(0,price-abono);
+    document.getElementById('saldoPendiente').value=Fmt.money(saldo);
+    // Suggest 30% if abono empty
+    if(price>0&&!document.getElementById('abonoInicial').value){
+      document.getElementById('abonoInicial').value=Math.round(price*0.3);
+      this.calc();
+    }
+  },
+
+  save(e){
+    try{
+      if(e&&e.preventDefault)e.preventDefault();
+      // Validación manual campo por campo con mensajes claros
+      const get=id=>(document.getElementById(id)?.value||'').trim();
+      const cliente=get('clienteNombre');
+      const tel=get('clienteTel');
+      const productoTipo=get('productoTipo');
+      const material=get('material');
+      const colores=get('coloresText');
+      const talla=get('talla');
+      const caracteristicas=get('caracteristicas');
+      const fechaCompromiso=get('fechaCompromiso');
+      const fechaLimitePedido=get('fechaLimitePedido');
+      const fechaEntrega=get('fechaEntrega');
+      const cantidad=Number(document.getElementById('cantidad').value)||0;
+      const price=Number(document.getElementById('precioAcordado').value)||0;
+      const deposit=Number(document.getElementById('abonoInicial').value)||0;
+      const tecnica=get('tecnica');
+      const notas=get('notas');
+
+      // Lista de campos faltantes
+      const faltan=[];
+      if(!cliente)faltan.push('Nombre del cliente');
+      if(!tel)faltan.push('Teléfono');
+      if(!productoTipo)faltan.push('Descripción del producto');
+      if(!material)faltan.push('Material');
+      if(!colores)faltan.push('Color(es)');
+      if(!talla)faltan.push('Talla/Medidas');
+      if(!caracteristicas)faltan.push('Características/Diseño');
+      if(!fechaCompromiso)faltan.push('Fecha del compromiso');
+      if(!fechaLimitePedido)faltan.push('Fecha límite de pedido');
+      if(!fechaEntrega)faltan.push('Fecha de entrega');
+      if(cantidad<1)faltan.push('Cantidad');
+      if(price<=0)faltan.push('Precio acordado');
+      if(deposit<0)faltan.push('Abono inicial');
+
+      if(faltan.length){
+        App.toast('Faltan: '+faltan.slice(0,3).join(', ')+(faltan.length>3?'...':''),'error');
+        // Resaltar primer campo faltante
+        const map={cliente:'clienteNombre',tel:'clienteTel',producto:'productoTipo',material:'material',
+          colores:'coloresText',talla:'talla',caracteristicas:'caracteristicas',
+          fecha:'fechaCompromiso',cantidad:'cantidad',precio:'precioAcordado',abono:'abonoInicial'};
+        return;
+      }
+
+      if(deposit>price){
+        App.toast('El abono ($'+deposit.toLocaleString('es-CO')+') no puede ser mayor al precio ($'+price.toLocaleString('es-CO')+')','error');
+        document.getElementById('abonoInicial').focus();
+        return;
+      }
+      if(new Date(fechaEntrega)<new Date(fechaCompromiso)){
+        App.toast('La fecha de entrega debe ser posterior a la fecha del compromiso','error');
+        document.getElementById('fechaEntrega').focus();
+        return;
+      }
+      if(new Date(fechaLimitePedido)>new Date(fechaEntrega)){
+        App.toast('La fecha límite de pedido no puede ser posterior a la entrega','error');
+        document.getElementById('fechaLimitePedido').focus();
+        return;
+      }
+      if(!this.selectedAllergies||!this.selectedAllergies.length){
+        const sec=document.getElementById('allergySection');
+        if(sec){
+          sec.classList.add('error');
+          sec.scrollIntoView({behavior:'smooth',block:'center'});
+          setTimeout(()=>sec.classList.remove('error'),3000);
+        }
+        App.toast('⚠️ Selecciona al menos una opción de alergias (marca "Ninguna" si no aplica)','error');
+        return;
+      }
+
+      const data={
+        cliente,tel,productoTipo,material,tecnica,colores,talla,cantidad,caracteristicas,
+        alergias:[...this.selectedAllergies],price,deposit,
+        fechaCompromiso,fechaLimitePedido,fechaEntrega,notas,status:'active'
+      };
+      let arr=Store.get();
+      if(this.editingId){
+        const i=arr.findIndex(x=>x.id===this.editingId);
+        arr[i]={...arr[i],...data};
+        App.toast('Pedido actualizado');
+        Store.save(arr);
+        const id=this.editingId;
+        this.editingId=null;
+        this.showReceipt(id);
+        setTimeout(()=>App.go('pedidos'),300);
+      }else{
+        data.id=Store.uid();
+        arr.push(data);
+        Store.save(arr);
+        App.toast('✅ Pedido registrado correctamente');
+        document.getElementById('formPedido').reset();
+        this.selectedAllergies=[];
+        this.renderAllergyChips();
+        this.showReceipt(data.id);
+        setTimeout(()=>App.go('pedidos'),300);
+      }
+    }catch(err){
+      console.error('Error al guardar:',err);
+      App.toast('Error: '+err.message,'error');
+    }
+  },
+
+  reset(){
+    document.getElementById('formPedido').reset();
+    this.selectedAllergies=[];
+    this.renderAllergyChips();
+    document.getElementById('cantidad').value=1;
+    const today=Fmt.today();
+    document.getElementById('fechaCompromiso').value=today;
+    document.getElementById('fechaLimitePedido').value=Fmt.addDays(today,7);
+    document.getElementById('fechaEntrega').value=Fmt.addDays(today,21);
+    document.getElementById('saldoPendiente').value='';
+    App.toast('Formulario limpiado','info');
+  },
+
+  render(){
+    // Populate tipo filter
+    const tipos=[...new Set(Store.get().map(p=>p.productoTipo))];
+    const tipoFilter=document.getElementById('pedidoTipoFilter');
+    const curTipo=tipoFilter.value;
+    tipoFilter.innerHTML='<option value="">Todos los tipos</option>'+tipos.map(t=>`<option ${t===curTipo?'selected':''}>${t}</option>`).join('');
+
+    const search=(document.getElementById('pedidoSearch')?.value||'').toLowerCase();
+    const status=document.getElementById('pedidoStatusFilter').value;
+    const tipoSel=tipoFilter.value;
+    let arr=Store.get();
+    if(search)arr=arr.filter(x=>x.cliente.toLowerCase().includes(search)||x.productoTipo.toLowerCase().includes(search)||(x.colores||'').toLowerCase().includes(search));
+    if(status)arr=arr.filter(x=>x.status===status);
+    if(tipoSel)arr=arr.filter(x=>x.productoTipo===tipoSel);
+
+    // Auto-update expired
+    const today=Fmt.today();
+    let changed=false;
+    arr=arr.map(x=>{
+      if(x.status==='active'&&Fmt.daysBetween(today,x.fechaEntrega)<0){changed=true;return{...x,status:'expired'}}
+      return x;
+    });
+    if(changed)Store.save(Store.get().map(x=>{const u=arr.find(a=>a.id===x.id);return u||x}));
+
+    const container=document.getElementById('pedidoContainer');
+    if(!arr.length){
+      container.innerHTML='<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-title">Sin pedidos</div><div class="empty-state-text">No hay pedidos que coincidan con los filtros.<br><br><button class="btn btn-primary" onclick="App.go(\'nuevo\')">➕ Crear primer pedido</button></div></div>';
+      return;
+    }
+
+    arr.sort((a,b)=>new Date(b.fechaCompromiso)-new Date(a.fechaCompromiso));
+    container.innerHTML=`<div class="pedido-grid">${arr.map(x=>{
+      const saldo=x.price-x.deposit;
+      const tagMap={active:'tag-active',picked_up:'tag-picked',cancelled:'tag-cancelled',expired:'tag-expired'};
+      const labelMap={active:'En proceso',picked_up:'Entregado',cancelled:'Cancelado',expired:'Vencido'};
+      const hasAllergy=x.alergias&&x.alergias.length&&!x.alergias.includes('Ninguna');
+      return `<div class="pedido-card">
+        <div class="pedido-card-header">
+          <div class="pedido-card-icon">${EMOJIS[x.productoTipo]||'📦'}</div>
+          <span class="pedido-tag ${tagMap[x.status]}">${labelMap[x.status]}</span>
+        </div>
+        <div class="pedido-card-body">
+          <div class="pedido-producto">${x.cantidad>1?x.cantidad+'× ':''}${x.productoTipo}</div>
+          <div class="pedido-cliente">👤 ${x.cliente} · 📞 ${x.tel}</div>
+          <div class="pedido-detail"><b>Material:</b> ${x.material||'—'}</div>
+          ${x.tecnica?`<div class="pedido-detail"><b>Técnica:</b> ${x.tecnica}</div>`:''}
+          <div class="pedido-detail"><b>Color:</b> ${x.colores||'—'}</div>
+          <div class="pedido-detail"><b>Talla:</b> ${x.talla||'—'}</div>
+          ${hasAllergy?`<div class="pedido-detail" style="color:var(--danger);font-weight:700"><b>⚠️ Alergia:</b> ${x.alergias.join(', ')}</div>`:''}
+          <div class="pedido-detail"><b>Diseño:</b> ${x.caracteristicas.length>60?x.caracteristicas.slice(0,60)+'...':x.caracteristicas}</div>
+          <div class="pedido-detail"><b>Entrega:</b> ${Fmt.date(x.fechaEntrega)}</div>
+        </div>
+        <div class="pedido-card-footer">
+          <div>
+            <div class="pedido-precio">${Fmt.money(x.price)}</div>
+            <div class="pedido-saldo">Saldo: ${Fmt.money(saldo)}</div>
+          </div>
+        </div>
+        <div style="padding:0 14px 14px">
+          <div class="pedido-actions">
+            <button class="btn btn-celeste btn-sm" onclick="PedidoUI.showReceipt('${x.id}')">🧾 Ver</button>
+            ${x.status==='active'?`
+              <button class="btn btn-success btn-sm" onclick="PedidoUI.markPicked('${x.id}')">✓ Entregar</button>
+              <button class="btn btn-ghost btn-sm" onclick="PedidoUI.edit('${x.id}')">✏️ Editar</button>
+              <button class="btn btn-danger btn-sm" onclick="PedidoUI.cancel('${x.id}')">✕ Cancelar</button>
+            `:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  },
+
+  edit(id){
+    App.go('nuevo');
+    setTimeout(()=>this.initForm(id),100);
+  },
+
+  markPicked(id){
+    if(!confirm('¿Confirmar que el cliente retiró el pedido y canceló el saldo?'))return;
+    const arr=Store.get();
+    const i=arr.findIndex(x=>x.id===id);
+    arr[i].status='picked_up';
+    arr[i].fechaEntregaReal=Fmt.today();
+    Store.save(arr);
+    App.toast('Pedido entregado');
+    this.render();
+  },
+
+  cancel(id){
+    if(!confirm('¿Cancelar este pedido? El abono se conservará como compensación por el trabajo iniciado.'))return;
+    const arr=Store.get();
+    const i=arr.findIndex(x=>x.id===id);
+    arr[i].status='cancelled';
+    Store.save(arr);
+    App.toast('Pedido cancelado','warning');
+    this.render();
+  },
+
+  showReceipt(id){
+    const r=Store.get().find(x=>x.id===id);
+    if(!r)return;
+    const saldo=r.price-r.deposit;
+    const hasAllergy=r.alergias&&r.alergias.length&&!r.alergias.includes('Ninguna');
+    const html=`
+      <div class="modal-header">
+        <div class="modal-title">🧾 Comprobante de Pedido y Reserva</div>
+        <button class="modal-close" onclick="Modal.close()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="receipt">
+          <div class="receipt-header">
+            <div class="receipt-logo">🧶</div>
+            <div class="receipt-business">Tejidos y Variedades Toyo</div>
+            <div class="receipt-sub">Pedidos Personalizados · Compromiso de Pago</div>
+          </div>
+          <div class="receipt-title">PEDIDO #${r.id}</div>
+
+          <div class="receipt-row section">👤 CLIENTE</div>
+          <div class="receipt-row"><span class="receipt-label">Nombre:</span><span class="receipt-value">${r.cliente}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Teléfono:</span><span class="receipt-value">${r.tel}</span></div>
+
+          <div class="receipt-row section">🧶 DETALLES DEL PEDIDO</div>
+          <div class="receipt-row"><span class="receipt-label">Producto:</span><span class="receipt-value" style="max-width:300px;text-align:right">${r.cantidad>1?r.cantidad+' × ':''}${r.productoTipo}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Material:</span><span class="receipt-value">${r.material||'—'}</span></div>
+          ${r.tecnica?`<div class="receipt-row"><span class="receipt-label">Técnica:</span><span class="receipt-value">${r.tecnica}</span></div>`:''}
+          <div class="receipt-row"><span class="receipt-label">Color(es):</span><span class="receipt-value" style="max-width:280px;text-align:right">${r.colores||'—'}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Talla/Medidas:</span><span class="receipt-value">${r.talla||'—'}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Diseño:</span><span class="receipt-value" style="max-width:300px;text-align:right">${r.caracteristicas}</span></div>
+
+          ${hasAllergy?`<div class="receipt-allergy">⚠️ ALERGIAS / SENSIBILIDADES: ${r.alergias.join(', ')}</div>`:''}
+
+          <div class="receipt-row section">💰 COMPROMISO DE PAGO</div>
+          <div class="receipt-row"><span class="receipt-label">Precio acordado:</span><span class="receipt-value">${Fmt.money(r.price)}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Abono inicial (garantía):</span><span class="receipt-value">${Fmt.money(r.deposit)}</span></div>
+          <div class="receipt-row total"><span>SALDO PENDIENTE:</span><span>${Fmt.money(saldo)}</span></div>
+
+          <div class="receipt-row section">📅 FECHAS IMPORTANTES</div>
+          <div class="receipt-row"><span class="receipt-label">Fecha del compromiso:</span><span class="receipt-value">${Fmt.date(r.fechaCompromiso)}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Límite para cambios:</span><span class="receipt-value">${Fmt.date(r.fechaLimitePedido)}</span></div>
+          <div class="receipt-block">
+            <div class="receipt-block-label">📅 FECHA DE ENTREGA Y PAGO</div>
+            <div class="receipt-block-content" style="font-size:15px;color:var(--terracota-dark)">${Fmt.date(r.fechaEntrega)}</div>
+          </div>
+
+          ${r.notas?`<div class="receipt-block"><div class="receipt-block-label">Notas</div><div class="receipt-block-content">${r.notas}</div></div>`:''}
+
+          <div class="receipt-note">
+            ⚠️ IMPORTANTE: El cliente debe regresar el ${Fmt.date(r.fechaEntrega)}<br>
+            a cancelar el saldo de ${Fmt.money(saldo)} y recoger su pedido.<br>
+            El abono inicial NO es reembolsable si no se retira en la fecha.
+          </div>
+
+          <div class="receipt-footer">
+            Gracias por su confianza · Tejidos y Variedades Toyo<br>
+            Este comprobante es su garantía de pedido y reserva
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="Modal.close()">Cerrar</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+      </div>`;
+    Modal.open(html);
+  },
+
+  exportCSV(){
+    const arr=Store.get();
+    if(!arr.length){App.toast('No hay datos para exportar','warning');return}
+    const rows=[['Cliente','Teléfono','Producto','Material','Técnica','Colores','Talla','Cantidad','Caracteristicas','Alergias','Precio','Abono','Saldo','F.Pedido','F.Entrega','Estado']];
+    arr.forEach(x=>{
+      rows.push([x.cliente,x.tel,x.productoTipo,x.material,x.tecnica||'',x.colores,x.talla,x.cantidad,x.caracteristicas,(x.alergias||[]).join('; '),x.price,x.deposit,x.price-x.deposit,x.fechaLimitePedido,x.fechaEntrega,x.status]);
+    });
+    const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    this._downloadBlob(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),'pedidos-toyo.csv');
+    App.toast('CSV exportado');
+  },
+
+  exportJSON(){
+    const arr=Store.get();
+    if(!arr.length){App.toast('No hay datos para exportar','warning');return}
+    const data={exportedAt:new Date().toISOString(),business:'Tejidos y Variedades Toyo',pedidos:arr};
+    this._downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),'backup-toyo.json');
+    App.toast('Backup JSON exportado');
+  },
+
+  importJSON(file){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const data=JSON.parse(e.target.result);
+        const arr=data.pedidos||data;
+        if(!Array.isArray(arr))throw new Error('Formato inválido');
+        Store.save(arr);
+        App.toast('Backup importado: '+arr.length+' pedidos');
+        App.go('pedidos');
+      }catch(err){
+        App.toast('Error al importar: '+err.message,'error');
+      }
+    };
+    reader.readAsText(file);
+  },
+
+  _downloadBlob(blob,filename){
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=filename;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+};
+
+/* =========================================================================
+   CALENDARIO
+   ========================================================================= */
+const CalendarUI = {
+  current:new Date(),
+  render(){
+    const y=this.current.getFullYear();
+    const m=this.current.getMonth();
+    const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    document.getElementById('calMonthLabel').textContent=`${monthNames[m]} ${y}`;
+
+    const first=new Date(y,m,1);
+    const last=new Date(y,m+1,0);
+    const startDay=first.getDay();
+    const totalDays=last.getDate();
+    const today=Fmt.today();
+
+    const pedidos=Store.get();
+    const grid=document.getElementById('calGrid');
+    let html=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+    for(let i=0;i<startDay;i++)html+='<div class="cal-day empty"></div>';
+    for(let d=1;d<=totalDays;d++){
+      const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday=dateStr===today;
+      const events=pedidos.filter(r=>r.fechaEntrega===dateStr);
+      const eventsHtml=events.map(r=>{
+        const days=Fmt.daysBetween(today,r.fechaEntrega);
+        let cls='normal';
+        if(r.status==='picked_up')cls='done';
+        else if(r.status==='cancelled')cls='';
+        else if(days<0)cls='urgent';
+        else if(days<=3)cls='soon';
+        return `<div class="cal-event ${cls}" title="${r.cliente} · ${r.productoTipo}" onclick="PedidoUI.showReceipt('${r.id}')">${r.cliente.split(' ')[0]} · ${r.productoTipo}</div>`;
+      }).join('');
+      html+=`<div class="cal-day ${isToday?'today':''}">
+        <div class="cal-day-num">${d}</div>
+        ${eventsHtml}
+      </div>`;
+    }
+    grid.innerHTML=html;
+  },
+  prev(){this.current.setMonth(this.current.getMonth()-1);this.render()},
+  next(){this.current.setMonth(this.current.getMonth()+1);this.render()}
+};
+
+/* =========================================================================
+   MODAL
+   ========================================================================= */
+const Modal = {
+  open(html){
+    document.getElementById('modalContent').innerHTML=html;
+    document.getElementById('modalOverlay').classList.add('show');
+  },
+  close(){
+    document.getElementById('modalOverlay').classList.remove('show');
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('modalOverlay').addEventListener('click',e=>{
+    if(e.target.id==='modalOverlay')Modal.close();
+  });
+});
+
+/* =========================================================================
+   SEED DATA · Datos de ejemplo
+   ========================================================================= */
+function seedData(){
+  if(Store.get().length)return;
+  const today=Fmt.today();
+  Store.save([
+    {
+      id:Store.uid(),cliente:'María González',tel:'300 123 4567',
+      productoTipo:'Suéter tejido en punto arroz con cuello alto',material:'Lana merino',tecnica:'Dos agujas (tricot)',colores:'Azul marino con detalles crema',
+      talla:'M (adulto)',cantidad:1,caracteristicas:'Punto arroz, cuello alto, mangas largas con bordado de flores en el pecho',
+      alergias:['Lana (picazón)'],price:85000,deposit:30000,
+      fechaCompromiso:today,fechaLimitePedido:Fmt.addDays(today,3),fechaEntrega:Fmt.addDays(today,2),
+      notas:'Cliente quiere que el bordado sea discreto',status:'active'
+    },
+    {
+      id:Store.uid(),cliente:'Carlos Pérez',tel:'310 987 6543',
+      productoTipo:'Bufanda infinito (cuello)',material:'Algodón',tecnica:'Crochet',colores:'Gris y negro',
+      talla:'Única',cantidad:2,caracteristicas:'Punto musgo, flecos en los extremos, aprox 1.5m de largo',
+      alergias:['Lana (picazón)','Acrílico'],price:70000,deposit:25000,
+      fechaCompromiso:today,fechaLimitePedido:Fmt.addDays(today,7),fechaEntrega:Fmt.addDays(today,10),
+      notas:'',status:'active'
+    },
+    {
+      id:Store.uid(),cliente:'Ana Martínez',tel:'315 555 1212',
+      productoTipo:'Gorro con orejeras y pompón',material:'Lana acrílica',tecnica:'Crochet',colores:'Terracota',
+      talla:'Única',cantidad:1,caracteristicas:'Gorro con orejeras, borde en relieve, pompón arriba',
+      alergias:['Ninguna'],price:25000,deposit:25000,
+      fechaCompromiso:Fmt.addDays(today,-15),fechaLimitePedido:Fmt.addDays(today,-10),fechaEntrega:Fmt.addDays(today,-5),
+      notas:'Pago completo al recoger',status:'picked_up'
+    },
+    {
+      id:Store.uid(),cliente:'Luisa Ramírez',tel:'320 456 7890',
+      productoTipo:'Manta tejida 1.5m × 2m con borlas',material:'Lana de oveja',tecnica:'Dos agujas (tricot)',colores:'Crema con bordes terracota',
+      talla:'Única',cantidad:1,caracteristicas:'Manta tejida 1.5m × 2m, puntas con borlas',
+      alergias:['Tintes químicos'],price:120000,deposit:40000,
+      fechaCompromiso:Fmt.addDays(today,-3),fechaLimitePedido:Fmt.addDays(today,2),fechaEntrega:Fmt.addDays(today,5),
+      notas:'Usar tintes naturales por alergia',status:'active'
+    }
+  ]);
+}
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+function initApp(){
+  if(window.__toyoInit)return;
+  window.__toyoInit=true;
+  try{
+    // Mostrar banner si localStorage no está disponible
+    if(!Store.lsOK()){
+      const banner=document.getElementById('storageBanner');
+      if(banner)banner.classList.add('show');
+    }
+    seedData();
+  }catch(e){console.error('seedData',e)}
+  try{Dashboard.render();}catch(e){console.error('Dashboard',e)}
+}
+document.addEventListener('DOMContentLoaded',initApp);
+if(document.readyState==='interactive'||document.readyState==='complete'){initApp();}
+
+// Allergy chip click handler (delegated)
+// Handler delegado removido: ahora los chips usan onclick directo en HTML
+</script>
+</body>
+</html>
